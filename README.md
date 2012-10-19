@@ -12,6 +12,7 @@ Platform
 * Debian, Ubuntu
 * CentOS, Red Hat, Fedora
 * FreeBSD
+* SmartOS, OmniOS
 
 A data bag populated with user objects must exist.  The default data bag in this recipe is `users`.  See USAGE.
 
@@ -31,6 +32,7 @@ Create a user in the data_bag/users/ directory.
     knife data bag users bofh
     {
       "id": "bofh",
+      "username": "bofh",
       "ssh_keys": "ssh-rsa AAAAB3Nz...yhCw== bofh",
       "groups": [ "sysadmin", "dba", "devops" ],
       "uid": 2001,
@@ -48,6 +50,7 @@ Remove a user, johndoe1.
     knife data bag users johndoe1
     {
       "id": "johndoe1",
+      "username": "johndoe1",
       "groups": [ "sysadmin", "dba", "devops" ],
       "uid": 2002,
       "action": "remove",
