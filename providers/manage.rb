@@ -25,7 +25,7 @@ end
 
 action :remove do
   search("#{new_resource.data_bag}", "groups:#{new_resource.search_group} AND action:remove") do |rm_user|
-    user rm_user(u['username'] || ['id'])do
+    user rm_user(u['username'] ||= ['id']) do
     action :remove
   end
   end
@@ -35,7 +35,7 @@ action :create do
   security_group = Array.new
 
   search("#{new_resource.data_bag}", "groups:#{new_resource.search_group} NOT action:remove") do |u|
-    security_group << u['username'] || u['id']
+    security_group << u['username']
 
     if node[:apache] and node[:apache][:allowed_openids]
       Array(u['openid']).compact.each do |oid|
