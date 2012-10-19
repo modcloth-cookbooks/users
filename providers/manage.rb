@@ -25,7 +25,7 @@ end
 
 action :remove do
   search("#{new_resource.data_bag}", "groups:#{new_resource.search_group} AND action:remove") do |rm_user|
-    user rm_user['id'] do
+    user rm_user(u['username'] ||= ['id']) do
     action :remove
   end
   end
@@ -35,7 +35,7 @@ action :create do
   security_group = Array.new
 
   search("#{new_resource.data_bag}", "groups:#{new_resource.search_group} NOT action:remove") do |u|
-    security_group << u['id']
+    security_group << u['username']
 
     if node[:apache] and node[:apache][:allowed_openids]
       Array(u['openid']).compact.each do |oid|
@@ -48,21 +48,21 @@ action :create do
     if u['home']
       home_dir = u['home']
     else
-      home_dir = "/home/#{u['id']}"
+      home_dir = "/home/#{u['username']}"
     end
 
     # The user block will fail if the group does not yet exist.
     # See the -g option limitations in man 8 useradd for an explanation.
     # This should correct that without breaking functionality.
     if u['gid'] and u['gid'].kind_of?(Numeric)
-      group u['id'] do
+      group u['username'] do
         gid u['gid']
       end
     end
 
     # Create user object.
     # Do NOT try to manage null home directories.
-    user u['id'] do
+    user u['username'] do
       uid u['uid']
       if u['gid']
         gid u['gid']
@@ -79,11 +79,11 @@ action :create do
 
     if home_dir != "/dev/null"
       directory "#{home_dir}/.ssh" do
-        owner u['id']
+        owner u['username']
         if u['gid']
           group u['gid']
         else
-          u['id']
+          u['username']
         end
         mode "0700"
       end
@@ -92,11 +92,11 @@ action :create do
         template "#{home_dir}/.ssh/authorized_keys" do
           source "authorized_keys.erb"
           cookbook new_resource.cookbook
-          owner u['id']
+          owner u['username']
           if u['gid']
             group u['gid']
           else
-            u['id']
+            u['username']
           end
           mode "0600"
           variables :ssh_keys => u['ssh_keys']
@@ -105,7 +105,7 @@ action :create do
     end
 
     if node[:platform] == 'smartos'
-      user u['id'] do
+      user u['username'] do
         action :unlock
       end
     end
